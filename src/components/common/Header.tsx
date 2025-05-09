@@ -59,21 +59,21 @@ const Header: React.FC = () => {
                   </Link>
                 )}
 
-                {userType === 'FUNCIONARIO' ? (
+                {userType === 'FUNCIONARIO' && (
                   <Link
                     to="/dashboard"
                     className="hover:text-yellow-300 transition-colors duration-200"
                   >
                     Dashboard
                   </Link>
-                ) : (
-                  <Link
-                    to="/perfil"
-                    className="hover:text-yellow-300 transition-colors duration-200"
-                  >
-                    Meu Perfil
-                  </Link>
                 )}
+
+                <Link
+                  to="/perfil"
+                  className="hover:text-yellow-300 transition-colors duration-200"
+                >
+                  {userType === 'FUNCIONARIO' ? 'Administração' : 'Meu Perfil'}
+                </Link>
               </>
             )}
           </nav>
@@ -108,7 +108,7 @@ const Header: React.FC = () => {
                         onClick={handleProfileClick}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Perfil
+                        {userType === 'FUNCIONARIO' ? 'Administração' : 'Perfil'}
                       </button>
                       <button
                         onClick={logout}
