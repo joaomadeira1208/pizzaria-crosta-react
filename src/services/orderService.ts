@@ -1,5 +1,5 @@
 import api from './api';
-import { Pedido, CreateOrderRequest, PaymentIntent } from '../types';
+import { Pedido, CreateOrderRequest, PaymentIntent, DashboardPedido } from '../types';
 
 const orderService = {
   createOrder: async (orderData: CreateOrderRequest): Promise<Pedido> => {
@@ -9,6 +9,11 @@ const orderService = {
 
   getOrdersByCustomerId: async (customerId: string): Promise<Pedido[]> => {
     const response = await api.get(`/pedidos/por-cliente/${customerId}`);
+    return response.data;
+  },
+
+  getAllOrders: async (): Promise<DashboardPedido[]> => {
+    const response = await api.get('/pedidos');
     return response.data;
   },
 

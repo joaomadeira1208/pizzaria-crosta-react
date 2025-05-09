@@ -6,7 +6,6 @@ import useCart from '../hooks/useCart';
 import useAuth from '../hooks/useAuth';
 import Button from '../components/common/Button';
 import AddressForm from '../components/checkout/AddressForm';
-import PaymentForm from '../components/checkout/PaymentForm';
 import CartItem from '../components/cart/CartItem';
 import orderService from '../services/orderService';
 import { Address, CreateOrderRequest } from '../types';
@@ -66,7 +65,57 @@ const CheckoutPage: React.FC = () => {
     if (!validateFields()) {
       return;
     }
-    setShowPayment(true);
+
+    try {
+      if (!userId) {
+        toast.error('Usuário não autenticado');
+        return;
+      }
+
+      console.log('userId:', userId);
+      console.log('cartItems:', cartItems);
+
+      const orderData = {
+        clienteId: parseInt(userId),
+        endereco: `${address.street}, ${address.number}${address.complement ? `, ${address.complement}` : ''}, ${address.district}, ${address.city} - ${address.state}, ${address.zipCode}`,
+        valorTotal: orderTotal,
+        pizzas: cartItems
+          .filter(item => item.type === 'PIZZA')
+          .map(item => ({
+            pizzaId: parseInt(item.id),
+            quantidade: item.quantity,
+            tamanho: 'MEDIA'
+          })),
+        bebidas: cartItems
+          .filter(item => item.type === 'DRINK')
+          .map(item => ({
+            bebidaId: parseInt(item.id),
+            quantidade: item.quantity
+          }))
+      };
+
+      console.log('orderData:', orderData);
+
+      // Primeiro criamos o pedido
+      const order = await orderService.createOrder(orderData);
+      console.log('Pedido criado:', order);
+
+      // Se o pedido foi criado com sucesso, mostramos o formulário de pagamento
+      setShowPayment(true);
+    } catch (error) {
+      console.error('Erro ao criar pedido:', error);
+      toast.error('Erro ao criar pedido. Por favor, tente novamente.');
+    }
+  };
+
+  const handlePaymentSuccess = async () => {
+    try {
+      clearCart();
+      navigate('/pedidos');
+    } catch (error) {
+      console.error('Erro ao finalizar pedido:', error);
+      toast.error('Erro ao finalizar pedido. Por favor, tente novamente.');
+    }
   };
 
   if (loading) {
@@ -95,12 +144,9 @@ const CheckoutPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900 mb-8">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2">
             {/* Address Form */}
             <AddressForm address={address} setAddress={setAddress} />
-
-            {/* Payment Form */}
-            <PaymentForm />
           </div>
 
           <div className="lg:col-span-1">
@@ -158,11 +204,7 @@ const CheckoutPage: React.FC = () => {
                 ) : (
                   <CheckoutForm
                     amount={orderTotal}
-                    onSuccess={() => {
-                      // Só limpa o carrinho após o pagamento ser concluído com sucesso
-                      clearCart();
-                      navigate('/pedidos');
-                    }}
+                    onSuccess={handlePaymentSuccess}
                   />
                 )}
 

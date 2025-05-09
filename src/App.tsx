@@ -23,6 +23,7 @@ import AccountPage from './pages/AccountPage';
 import EditAccountPage from './pages/EditAccountPage';
 import NotFoundPage from './pages/NotFoundPage';
 import PerfilPage from './pages/PerfilPage';
+import DashboardPage from './pages/DashboardPage';
 
 const stripePromise = loadStripe(import.meta.env.VITE_REACT_APP_STRIPE_PK_TEST!);
 
@@ -124,6 +125,15 @@ const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <EditAccountPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
                     </ProtectedRoute>
                   }
                 />

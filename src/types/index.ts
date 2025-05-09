@@ -97,17 +97,53 @@ export interface Pedido {
 }
 
 export interface CreateOrderRequest {
-  customerId: string;
-  items: {
-    productId: string;
-    quantity: number;
-    type: 'PIZZA' | 'DRINK';
+  clienteId: number;
+  endereco: string;
+  valorTotal: number;
+  pizzas: {
+    pizzaId: number;
+    quantidade: number;
+    tamanho: string;
   }[];
-  address: Address;
+  bebidas: {
+    bebidaId: number;
+    quantidade: number;
+  }[];
 }
 
 // Payment types
 export interface PaymentIntent {
   clientSecret: string;
   amount: number;
+}
+
+export interface DashboardCliente {
+  nome: string;
+  cpf: string;
+  idade: number;
+  telefone: string;
+  email: string;
+}
+
+export interface DashboardPizza {
+  sabor: string;
+  preco: number;
+  tamanho: string;
+  quantidade: number;
+}
+
+export interface DashboardBebida {
+  nome: string;
+  preco: number;
+  quantidade: number;
+}
+
+export interface DashboardPedido {
+  cliente: DashboardCliente;
+  valorTotal: number;
+  endereco: string;
+  dataHora: string;
+  status: 'PENDENTE' | 'EM_PREPARACAO' | 'PRONTO' | 'SAIU_PARA_ENTREGA' | 'ENTREGUE' | 'CANCELADO';
+  pizzas: DashboardPizza[];
+  bebidas: DashboardBebida[];
 }
