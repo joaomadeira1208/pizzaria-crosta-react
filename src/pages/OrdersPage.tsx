@@ -38,6 +38,15 @@ const OrdersPage: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const navigate = useNavigate();
 
+  // Ordem dos status para ordenação
+  const statusOrder = [
+    'PENDENTE',
+    'EM_PREPARACAO',
+    'EM_ENTREGA',
+    'FINALIZADO',
+    'CANCELADO'
+  ];
+
   useEffect(() => {
     if (userType === 'FUNCIONARIO') {
       navigate('/');
@@ -81,55 +90,63 @@ const OrdersPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {orders.map((order, idx) => (
-              <div key={idx} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="bg-red-700 text-white px-4 py-2 flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Package className="h-5 w-5" />
-                    <span className="font-medium">Pedido</span>
-                  </div>
-                  <span className="font-medium capitalize">{order.status}</span>
-                </div>
-                <div className="p-4">
-                  <div className="mb-2 text-gray-800 text-sm">
-                    <div><span className="font-semibold">Data:</span> {new Date(order.dataHora).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-                    <div><span className="font-semibold">Status:</span> {order.status}</div>
-                    <div><span className="font-semibold">Valor Total:</span> R$ {order.valorTotal.toFixed(2)}</div>
-                    <div><span className="font-semibold">Endereço:</span> {order.endereco}</div>
-                  </div>
-                  <div className="flex justify-end">
-                    <Button variant="secondary" onClick={() => setOpenIndex(openIndex === idx ? null : idx)}>
-                      {openIndex === idx ? 'Ocultar Itens' : 'Ver Itens'}
-                    </Button>
-                  </div>
-                  {openIndex === idx && (
-                    <div className="mt-4">
-                      <h4 className="font-semibold mb-2">Pizzas:</h4>
-                      {order.pizzas.length === 0 ? <p className="text-gray-500 mb-2">Nenhuma pizza neste pedido.</p> : (
-                        <ul className="mb-2">
-                          {order.pizzas.map((pizza, i) => (
-                            <li key={i} className="mb-2">
-                              <span className="font-medium">{pizza.sabor}</span> - {pizza.tamanho} - {pizza.quantidade}x - R$ {pizza.preco.toFixed(2)}
-                              <br />
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      <h4 className="font-semibold mb-2 mt-4">Bebidas:</h4>
-                      {order.bebidas.length === 0 ? <p className="text-gray-500 mb-2">Nenhuma bebida neste pedido.</p> : (
-                        <ul>
-                          {order.bebidas.map((bebida, i) => (
-                            <li key={i}>
-                              <span className="font-medium">{bebida.nome}</span> - {bebida.quantidade}x - R$ {bebida.preco.toFixed(2)}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+            {orders
+              .slice()
+              .sort((a, b) => {
+                const statusDiff = statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+                if (statusDiff !== 0) return statusDiff;
+                // Mais novos antes
+                return new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime();
+              })
+              .map((order, idx) => (
+                <div key={idx} className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <div className="bg-red-700 text-white px-4 py-2 flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <Package className="h-5 w-5" />
+                      <span className="font-medium">Pedido</span>
                     </div>
-                  )}
+                    <span className="font-medium capitalize">{order.status}</span>
+                  </div>
+                  <div className="p-4">
+                    <div className="mb-2 text-gray-800 text-sm">
+                      <div><span className="font-semibold">Data:</span> {new Date(order.dataHora).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                      <div><span className="font-semibold">Status:</span> {order.status}</div>
+                      <div><span className="font-semibold">Valor Total:</span> R$ {order.valorTotal.toFixed(2)}</div>
+                      <div><span className="font-semibold">Endereço:</span> {order.endereco}</div>
+                    </div>
+                    <div className="flex justify-end">
+                      <Button variant="secondary" onClick={() => setOpenIndex(openIndex === idx ? null : idx)}>
+                        {openIndex === idx ? 'Ocultar Itens' : 'Ver Itens'}
+                      </Button>
+                    </div>
+                    {openIndex === idx && (
+                      <div className="mt-4">
+                        <h4 className="font-semibold mb-2">Pizzas:</h4>
+                        {order.pizzas.length === 0 ? <p className="text-gray-500 mb-2">Nenhuma pizza neste pedido.</p> : (
+                          <ul className="mb-2">
+                            {order.pizzas.map((pizza, i) => (
+                              <li key={i} className="mb-2">
+                                <span className="font-medium">{pizza.sabor}</span> - {pizza.tamanho} - {pizza.quantidade}x - R$ {pizza.preco.toFixed(2)}
+                                <br />
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <h4 className="font-semibold mb-2 mt-4">Bebidas:</h4>
+                        {order.bebidas.length === 0 ? <p className="text-gray-500 mb-2">Nenhuma bebida neste pedido.</p> : (
+                          <ul>
+                            {order.bebidas.map((bebida, i) => (
+                              <li key={i}>
+                                <span className="font-medium">{bebida.nome}</span> - {bebida.quantidade}x - R$ {bebida.preco.toFixed(2)}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>

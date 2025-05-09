@@ -17,9 +17,9 @@ const CartSummary: React.FC<CartSummaryProps> = ({ cartItems, cartTotal }) => {
   // Calculate subtotal, delivery fee, and taxes
   const subtotal = cartTotal;
   const deliveryFee = 4.99;
-  const taxRate = 0.08; // 8% tax
-  const taxAmount = subtotal * taxRate;
-  const orderTotal = subtotal + deliveryFee + taxAmount;
+  // const taxRate = 0.08; // 8% tax
+  // const taxAmount = subtotal * taxRate;
+  const orderTotal = subtotal + deliveryFee;
 
   const handleCheckout = () => {
     if (cartItems.length === 0) {
@@ -43,11 +43,6 @@ const CartSummary: React.FC<CartSummaryProps> = ({ cartItems, cartTotal }) => {
         <div className="flex justify-between">
           <span className="text-gray-600">Taxa de Entrega</span>
           <span className="font-medium">R$ {deliveryFee.toFixed(2)}</span>
-        </div>
-
-        <div className="flex justify-between">
-          <span className="text-gray-600">Imposto</span>
-          <span className="font-medium">R$ {taxAmount.toFixed(2)}</span>
         </div>
 
         <div className="pt-3 mt-3 border-t border-gray-200 flex justify-between">
