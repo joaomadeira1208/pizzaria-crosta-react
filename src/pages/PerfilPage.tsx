@@ -320,14 +320,6 @@ const PerfilPage: React.FC = () => {
 
                                 <h2 className="text-xl font-bold text-gray-800 mb-1">{cliente.nome}</h2>
                                 <p className="text-gray-600 mb-4">{cliente.email}</p>
-
-                                <Button
-                                    variant="outline"
-                                    onClick={() => navigate('/perfil/editar')}
-                                    icon={<Edit size={18} />}
-                                >
-                                    Editar Perfil
-                                </Button>
                             </CardBody>
                         </Card>
                     </div>
