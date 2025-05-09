@@ -75,7 +75,7 @@ const RegisterPage: React.FC = () => {
           email: formData.email,
           senha: formData.senha
         };
-        const response = await fetch('http://localhost:8080/clientes', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/clientes`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)

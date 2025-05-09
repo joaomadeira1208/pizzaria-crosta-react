@@ -24,7 +24,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ amount, onSuccess }) => {
 
         try {
             // Chame seu backend para criar a intenção de pagamento
-            const { data } = await axios.post('http://localhost:8080/pagamentos/intencao', {
+            const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/pagamentos/intencao`, {
                 amount: Math.round(amount * 100), // Stripe espera centavos
             });
 

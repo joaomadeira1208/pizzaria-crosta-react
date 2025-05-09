@@ -56,7 +56,7 @@ const OrdersPage: React.FC = () => {
       if (!isAuthenticated || !userId) return;
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/pedidos/por-cliente/${userId}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/pedidos/por-cliente/${userId}`);
         if (!response.ok) throw new Error('Erro ao buscar pedidos');
         const data = await response.json();
         setOrders(data);
