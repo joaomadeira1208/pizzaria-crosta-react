@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 import { toast } from 'react-toastify';
@@ -31,12 +32,17 @@ interface PedidoCliente {
 }
 
 const OrdersPage: React.FC = () => {
-  const { userId, isAuthenticated } = useAuth();
+  const { userId, isAuthenticated, userType } = useAuth();
   const [orders, setOrders] = useState<PedidoCliente[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (userType === 'FUNCIONARIO') {
+      navigate('/');
+      return;
+    }
     const fetchOrders = async () => {
       if (!isAuthenticated || !userId) return;
       try {
@@ -53,7 +59,7 @@ const OrdersPage: React.FC = () => {
       }
     };
     fetchOrders();
-  }, [userId, isAuthenticated]);
+  }, [userId, isAuthenticated, userType, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

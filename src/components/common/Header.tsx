@@ -50,12 +50,14 @@ const Header: React.FC = () => {
 
             {isAuthenticated && (
               <>
-                <Link
-                  to="/pedidos"
-                  className="hover:text-yellow-300 transition-colors duration-200"
-                >
-                  Meus Pedidos
-                </Link>
+                {userType !== 'FUNCIONARIO' && (
+                  <Link
+                    to="/pedidos"
+                    className="hover:text-yellow-300 transition-colors duration-200"
+                  >
+                    Meus Pedidos
+                  </Link>
+                )}
 
                 {userType === 'FUNCIONARIO' ? (
                   <Link
