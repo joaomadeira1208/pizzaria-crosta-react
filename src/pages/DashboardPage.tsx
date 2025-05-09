@@ -50,19 +50,57 @@ const DashboardPage: React.FC = () => {
             case 'PENDENTE':
                 return 'bg-yellow-100 text-yellow-800';
             case 'EM_PREPARACAO':
+            case 'EM_ENTREGA':
                 return 'bg-blue-100 text-blue-800';
-            case 'PRONTO':
-                return 'bg-green-100 text-green-800';
-            case 'SAIU_PARA_ENTREGA':
-                return 'bg-purple-100 text-purple-800';
-            case 'ENTREGUE':
-                return 'bg-gray-100 text-gray-800';
+            case 'FINALIZADO':
+                return 'bg-green-200 text-green-900';
             case 'CANCELADO':
                 return 'bg-red-100 text-red-800';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
     };
+
+    // Função para obter o próximo status
+    const getNextStatus = (status: string) => {
+        switch (status) {
+            case 'PENDENTE':
+                return 'EM_PREPARACAO';
+            case 'EM_PREPARACAO':
+                return 'EM_ENTREGA';
+            case 'EM_ENTREGA':
+                return 'FINALIZADO';
+            default:
+                return null;
+        }
+    };
+
+    // Função para alterar o status do pedido
+    const handleNextStatus = async (idPedido: number, statusAtual: string) => {
+        const proximoStatus = getNextStatus(statusAtual);
+        if (!proximoStatus) {
+            toast.info('Este pedido já está finalizado ou não pode avançar.');
+            return;
+        }
+        try {
+            await orderService.updateDashboardOrderStatus(idPedido, proximoStatus);
+            toast.success('Status atualizado com sucesso!');
+            // Atualiza a lista de pedidos
+            const data = await orderService.getAllOrders();
+            setOrders(data);
+        } catch (error) {
+            toast.error('Erro ao atualizar status do pedido.');
+        }
+    };
+
+    // Ordem dos status para ordenação
+    const statusOrder = [
+        'PENDENTE',
+        'EM_PREPARACAO',
+        'EM_ENTREGA',
+        'FINALIZADO',
+        'CANCELADO'
+    ];
 
     if (loading) {
         return (
@@ -78,80 +116,80 @@ const DashboardPage: React.FC = () => {
                 <h1 className="text-2xl font-bold text-gray-900 mb-8">Dashboard de Pedidos</h1>
 
                 <div className="grid gap-6">
-                    {orders.map((order, index) => (
-                        <div key={index} className="bg-white rounded-lg shadow-md p-6">
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <User className="text-gray-500" size={20} />
-                                        <span className="font-medium">Cliente: {order.cliente.nome}</span>
+                    {orders
+                        .slice() // para não mutar o state
+                        .sort((a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status))
+                        .map((order, index) => (
+                            <div key={index} className="bg-white rounded-lg shadow-md p-6">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <User className="text-gray-500" size={20} />
+                                            <span className="font-medium">Cliente: {order.cliente.nome}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                            <Clock size={16} />
+                                            <span>{formatDate(order.dataHora)}</span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <Clock size={16} />
-                                        <span>{formatDate(order.dataHora)}</span>
-                                    </div>
+                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                                        {order.status}
+                                    </span>
                                 </div>
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                                    {order.status}
-                                </span>
-                            </div>
 
-                            <div className="flex items-center gap-2 text-gray-600 mb-4">
-                                <MapPin size={16} />
-                                <span>{order.endereco}</span>
-                            </div>
+                                <div className="flex items-center gap-2 text-gray-600 mb-4">
+                                    <MapPin size={16} />
+                                    <span>{order.endereco}</span>
+                                </div>
 
-                            <div className="space-y-4">
-                                {order.pizzas.length > 0 && (
-                                    <div>
-                                        <h3 className="font-medium mb-2">Pizzas:</h3>
-                                        <ul className="space-y-2">
-                                            {order.pizzas.map((pizza, idx) => (
-                                                <li key={idx} className="flex justify-between text-gray-600">
-                                                    <span>
-                                                        {pizza.quantidade}x {pizza.sabor} ({pizza.tamanho})
-                                                    </span>
-                                                    <span>R$ {pizza.preco.toFixed(2)}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
+                                <div className="space-y-4">
+                                    {order.pizzas.length > 0 && (
+                                        <div>
+                                            <h3 className="font-medium mb-2">Pizzas:</h3>
+                                            <ul className="space-y-2">
+                                                {order.pizzas.map((pizza, idx) => (
+                                                    <li key={idx} className="flex justify-between text-gray-600">
+                                                        <span>
+                                                            {pizza.quantidade}x {pizza.sabor} ({pizza.tamanho})
+                                                        </span>
+                                                        <span>R$ {pizza.preco.toFixed(2)}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
 
-                                {order.bebidas.length > 0 && (
-                                    <div>
-                                        <h3 className="font-medium mb-2">Bebidas:</h3>
-                                        <ul className="space-y-2">
-                                            {order.bebidas.map((bebida, idx) => (
-                                                <li key={idx} className="flex justify-between text-gray-600">
-                                                    <span>
-                                                        {bebida.quantidade}x {bebida.nome}
-                                                    </span>
-                                                    <span>R$ {bebida.preco.toFixed(2)}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
+                                    {order.bebidas.length > 0 && (
+                                        <div>
+                                            <h3 className="font-medium mb-2">Bebidas:</h3>
+                                            <ul className="space-y-2">
+                                                {order.bebidas.map((bebida, idx) => (
+                                                    <li key={idx} className="flex justify-between text-gray-600">
+                                                        <span>
+                                                            {bebida.quantidade}x {bebida.nome}
+                                                        </span>
+                                                        <span>R$ {bebida.preco.toFixed(2)}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
 
-                            <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
-                                <span className="font-bold text-lg">
-                                    Total: R$ {order.valorTotal.toFixed(2)}
-                                </span>
-                                <Button
-                                    variant="primary"
-                                    icon={<ArrowRight size={18} />}
-                                    onClick={() => {
-                                        // Futuramente implementar a lógica de mudança de status
-                                        toast.info('Funcionalidade em desenvolvimento');
-                                    }}
-                                >
-                                    Próximo Status
-                                </Button>
+                                <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                                    <span className="font-bold text-lg">
+                                        Total: R$ {order.valorTotal.toFixed(2)}
+                                    </span>
+                                    <Button
+                                        variant="primary"
+                                        icon={<ArrowRight size={18} />}
+                                        onClick={() => handleNextStatus(order.idPedido, order.status)}
+                                    >
+                                        Próximo Status
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
                 </div>
             </div>
         </div>

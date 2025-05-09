@@ -139,11 +139,12 @@ export interface DashboardBebida {
 }
 
 export interface DashboardPedido {
+  idPedido: number;
   cliente: DashboardCliente;
   valorTotal: number;
   endereco: string;
   dataHora: string;
-  status: 'PENDENTE' | 'EM_PREPARACAO' | 'PRONTO' | 'SAIU_PARA_ENTREGA' | 'ENTREGUE' | 'CANCELADO';
+  status: 'PENDENTE' | 'EM_PREPARACAO' | 'EM_ENTREGA' | 'FINALIZADO' | 'CANCELADO';
   pizzas: DashboardPizza[];
   bebidas: DashboardBebida[];
 }

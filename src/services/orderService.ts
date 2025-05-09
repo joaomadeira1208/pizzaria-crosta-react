@@ -30,6 +30,11 @@ const orderService = {
   createPaymentIntent: async (orderId: string): Promise<PaymentIntent> => {
     const response = await api.post(`/pagamento/intencao`, { orderId });
     return response.data;
+  },
+
+  updateDashboardOrderStatus: async (idPedido: number, status: string) => {
+    const response = await api.post(`/pedidos/alterar-status/${String(idPedido)}`, { status });
+    return response.data;
   }
 };
 
