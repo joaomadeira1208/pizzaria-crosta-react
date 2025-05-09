@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, CheckCircle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -15,7 +15,7 @@ import CheckoutForm from '../components/payment/CheckoutForm';
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { cartItems, cartTotal, updateItemQuantity, removeItemFromCart, clearCart, loading } = useCart();
-  const { userId, isAuthenticated } = useAuth();
+  const { userId, isAuthenticated, userType } = useAuth();
   const [processing, setProcessing] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [address, setAddress] = useState<Address>({
@@ -47,6 +47,12 @@ const CheckoutPage: React.FC = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (userType === 'FUNCIONARIO') {
+      navigate('/');
+    }
+  }, [userType, navigate]);
 
   const validateFields = () => {
     const requiredFields = ['street', 'number', 'district', 'city', 'state', 'zipCode'];

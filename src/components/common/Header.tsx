@@ -82,13 +82,15 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <Link
-                  to="/cart"
-                  className="p-2 rounded-full hover:bg-red-800 transition-colors duration-200"
-                  title="Carrinho"
-                >
-                  <ShoppingCart className="h-6 w-6" />
-                </Link>
+                {userType !== 'FUNCIONARIO' && (
+                  <Link
+                    to="/cart"
+                    className="p-2 rounded-full hover:bg-red-800 transition-colors duration-200"
+                    title="Carrinho"
+                  >
+                    <ShoppingCart className="h-6 w-6" />
+                  </Link>
+                )}
 
                 <div className="relative" ref={menuRef}>
                   <button

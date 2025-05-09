@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ShoppingCart, ArrowLeft, ShoppingBag } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useCart from '../hooks/useCart';
+import useAuth from '../hooks/useAuth';
 import CartItem from '../components/cart/CartItem';
 import CartSummary from '../components/cart/CartSummary';
 import Button from '../components/common/Button';
@@ -14,6 +15,14 @@ const CartPage: React.FC = () => {
     removeItemFromCart,
     clearCart
   } = useCart();
+  const { userType } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userType === 'FUNCIONARIO') {
+      navigate('/');
+    }
+  }, [userType, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

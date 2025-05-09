@@ -3,6 +3,7 @@ import { Plus, Minus } from 'lucide-react';
 import { Drink } from '../../types';
 import Card, { CardBody, CardFooter } from '../common/Card';
 import Button from '../common/Button';
+import useAuth from '../../hooks/useAuth';
 
 interface DrinkCardProps {
   drink: Drink;
@@ -11,6 +12,7 @@ interface DrinkCardProps {
 
 const DrinkCard: React.FC<DrinkCardProps> = ({ drink, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
+  const { userType } = useAuth();
 
   const increaseQuantity = () => {
     setQuantity(prev => prev + 1);
@@ -46,36 +48,40 @@ const DrinkCard: React.FC<DrinkCardProps> = ({ drink, onAddToCart }) => {
       </CardBody>
 
       <CardFooter className="bg-gray-50">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-gray-700 font-medium">Quantidade:</span>
-          <div className="flex items-center">
-            <button
-              onClick={decreaseQuantity}
-              className="p-1 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
-              disabled={quantity <= 1}
+        {userType !== 'FUNCIONARIO' && (
+          <>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-700 font-medium">Quantidade:</span>
+              <div className="flex items-center">
+                <button
+                  onClick={decreaseQuantity}
+                  className="p-1 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
+                  disabled={quantity <= 1}
+                >
+                  <Minus size={16} className={quantity <= 1 ? 'text-gray-400' : 'text-gray-700'} />
+                </button>
+
+                <span className="mx-3 font-medium">{quantity}</span>
+
+                <button
+                  onClick={increaseQuantity}
+                  className="p-1 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
+                >
+                  <Plus size={16} className="text-gray-700" />
+                </button>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleAddToCart}
+              variant="secondary"
+              fullWidth
+              icon={<Plus size={18} />}
             >
-              <Minus size={16} className={quantity <= 1 ? 'text-gray-400' : 'text-gray-700'} />
-            </button>
-
-            <span className="mx-3 font-medium">{quantity}</span>
-
-            <button
-              onClick={increaseQuantity}
-              className="p-1 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
-            >
-              <Plus size={16} className="text-gray-700" />
-            </button>
-          </div>
-        </div>
-
-        <Button
-          onClick={handleAddToCart}
-          variant="secondary"
-          fullWidth
-          icon={<Plus size={18} />}
-        >
-          Adicionar ao Carrinho
-        </Button>
+              Adicionar ao Carrinho
+            </Button>
+          </>
+        )}
       </CardFooter>
     </Card>
   );
