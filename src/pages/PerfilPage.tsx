@@ -33,6 +33,27 @@ const PerfilPage: React.FC = () => {
     const [cliente, setCliente] = useState<ClienteData | null>(null);
     const [funcionario, setFuncionario] = useState<FuncionarioData | null>(null);
 
+    // Hooks do formulário de cadastro de funcionário SEMPRE no topo
+    const [showForm, setShowForm] = useState(false);
+    const [formData, setFormData] = useState({
+        nome: '',
+        cpf: '',
+        idade: '',
+        telefone: '',
+        email: '',
+        senha: '',
+        cargo: 'ATENDENTE',
+        turno: '1'
+    });
+    const [formError, setFormError] = useState('');
+    const [formSuccess, setFormSuccess] = useState('');
+    const cargos = ['GERENTE', 'ATENDENTE', 'COZINHEIRO', 'ENTREGADOR'];
+    const turnos = [
+        { label: 'Manhã', value: '1' },
+        { label: 'Tarde', value: '2' },
+        { label: 'Noite', value: '3' }
+    ];
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -81,6 +102,45 @@ const PerfilPage: React.FC = () => {
 
     if (userType === 'FUNCIONARIO' && funcionario) {
         const turnoLabel = funcionario.turno === 1 ? 'Manhã' : funcionario.turno === 2 ? 'Tarde' : funcionario.turno === 3 ? 'Noite' : 'Desconhecido';
+
+        const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+            const { name, value } = e.target;
+            setFormData(prev => ({ ...prev, [name]: value }));
+        };
+
+        const handleFormSubmit = async (e: React.FormEvent) => {
+            e.preventDefault();
+            setFormError('');
+            setFormSuccess('');
+            // Validação simples
+            if (!formData.nome || !formData.cpf || !formData.idade || !formData.telefone || !formData.email || !formData.senha) {
+                setFormError('Preencha todos os campos.');
+                return;
+            }
+            try {
+                const body = {
+                    nome: formData.nome,
+                    cpf: formData.cpf.replace(/\D/g, ''),
+                    idade: parseInt(formData.idade),
+                    telefone: formData.telefone,
+                    email: formData.email,
+                    senha: formData.senha,
+                    cargo: formData.cargo,
+                    turno: parseInt(formData.turno),
+                    idFuncionarioExecutando: userId
+                };
+                const response = await api.post('/funcionario', body);
+                if (response.status === 201 || response.status === 200) {
+                    setFormSuccess('Funcionário cadastrado com sucesso!');
+                    setFormData({ nome: '', cpf: '', idade: '', telefone: '', email: '', senha: '', cargo: 'ATENDENTE', turno: '1' });
+                } else {
+                    setFormError('Erro ao cadastrar funcionário.');
+                }
+            } catch (error) {
+                setFormError('Erro ao cadastrar funcionário.');
+            }
+        };
+
         return (
             <div className="min-h-screen bg-gray-50 py-8">
                 <div className="max-w-4xl mx-auto px-4">
@@ -166,6 +226,65 @@ const PerfilPage: React.FC = () => {
                             </Card>
                         </div>
                     </div>
+
+                    {/* Cadastro de novo funcionário para GERENTE */}
+                    {funcionario.cargo === 'GERENTE' && (
+                        <div className="mt-10 bg-white rounded-lg shadow-md p-6">
+                            <h3 className="text-lg font-semibold mb-4">Cadastrar Novo Funcionário</h3>
+                            <Button variant="primary" onClick={() => setShowForm(!showForm)}>
+                                {showForm ? 'Fechar Formulário' : 'Cadastrar Novo Funcionário'}
+                            </Button>
+                            {showForm && (
+                                <form className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleFormSubmit}>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                                        <input type="text" name="nome" value={formData.nome} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                                        <input type="text" name="cpf" value={formData.cpf} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Idade</label>
+                                        <input type="number" name="idade" value={formData.idade} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                                        <input type="text" name="telefone" value={formData.telefone} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <input type="email" name="email" value={formData.email} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                                        <input type="password" name="senha" value={formData.senha} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                                        <select name="cargo" value={formData.cargo} onChange={handleFormChange} className="w-full border rounded px-3 py-2">
+                                            {cargos.map(cargo => (
+                                                <option key={cargo} value={cargo}>{cargo}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Turno</label>
+                                        <select name="turno" value={formData.turno} onChange={handleFormChange} className="w-full border rounded px-3 py-2">
+                                            {turnos.map(turno => (
+                                                <option key={turno.value} value={turno.value}>{turno.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {formError && <div className="col-span-2 text-red-600 text-sm mt-2">{formError}</div>}
+                                    {formSuccess && <div className="col-span-2 text-green-600 text-sm mt-2">{formSuccess}</div>}
+                                    <div className="col-span-2 flex justify-end">
+                                        <Button type="submit" variant="primary">Cadastrar</Button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         );
