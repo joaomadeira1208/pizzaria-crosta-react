@@ -1,6 +1,3 @@
-VITE_API_URL
-VITE_REACT_APP_STRIPE_PK_TEST
-
 # Etapa 1: Build do front
 FROM node:18 AS builder
 ARG VITE_API_URL
